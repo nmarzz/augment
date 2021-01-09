@@ -126,11 +126,7 @@ def test():
             if args.cuda:
                 data, target = data.cuda(), target.cuda()
             output = model(data)
-            print('ouput')
-            print(output)
-
-            print('target')
-            print(target)
+                        
             loss = loss_function(output, target)
 
             top1.add(output.data, target.data)
