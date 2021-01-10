@@ -114,6 +114,7 @@ if args.make_gif:
 
     tsne_images = []
     visualization_batch = next(iter(test_loader))
+    vis_batch_data = visualization_batch[0]
     y = visualization_batch[1].detach()
 
 
@@ -162,7 +163,6 @@ if __name__=="__main__":
         train(epoch)
         if args.make_gif:
             model.eval()
-            vis_batch_data = visualization_batch[0]
             output = model(vis_batch_data)
             res = tsne.fit_transform(output.detach())
 
