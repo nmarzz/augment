@@ -165,7 +165,7 @@ if __name__=="__main__":
         if args.make_gif:
             model.eval()
             if args.cuda:
-                vis_batch_data.cuda()
+                vis_batch_data = vis_batch_data.cuda()
             output = model(vis_batch_data)
             res = tsne.fit_transform(output.detach())
 
