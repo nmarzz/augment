@@ -37,6 +37,7 @@ print('\n')
 
 ###################
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
+device = 'cuda' if args.cuda else 'cpu'
 ### Looks like we are using MNIST - (cause what else)
 # Import train data
 train_loader = torch.utils.data.DataLoader(
@@ -115,6 +116,7 @@ if args.make_gif:
     tsne_images = []
     visualization_batch = next(iter(test_loader))
     vis_batch_data = visualization_batch[0]
+    vis_batch_data.to(device)
     y = visualization_batch[1].detach()
 
 
