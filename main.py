@@ -178,5 +178,5 @@ if __name__=="__main__":
 
     if args.make_gif:
         img = tsne_images[0]
-        img.save(fp='tsne_{}'.format(args.epochs), format='GIF', append_images=tsne_images[1:],
-         save_all=True, duration=200, loop=0)
+        img.save(fp='tsne_{}.gif'.format(args.epochs), format='GIF', append_images=tsne_images[1:],
+         save_all=True, duration=1000, loop=0)
