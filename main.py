@@ -167,7 +167,7 @@ if __name__=="__main__":
             if args.cuda:
                 vis_batch_data = vis_batch_data.cuda()
             output = model(vis_batch_data)
-            res = tsne.fit_transform(output.detach())
+            res = tsne.fit_transform(output.cpu().detach())
 
             fig = plt.figure(figsize=(16,10))
             sns.scatterplot(x =res[:,0],y = res[:,1],palette=sns.color_palette("hls", 10),hue=y,legend='full')
