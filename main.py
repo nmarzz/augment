@@ -24,7 +24,7 @@ parser.add_argument('--dropout', type=float, default=0.25, metavar='P',
 parser.add_argument('--momentum', type=float, default=0.9, metavar='M',
                     help='heavy ball momentum in gradient descent (default: 0.9)')
 parser.add_argument('--data-dir', type=str, default='./data',metavar='DIR')
-parser.add_argument('--make-gif', type=bool, default=True,metavar='MKGIF')
+parser.add_argument('--make-gif', type=bool, default=False,metavar='MKGIF')
 args = parser.parse_args()
 args.cuda =  torch.cuda.is_available()
 
