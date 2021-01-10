@@ -6,13 +6,16 @@ import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.autograd import Variable
 import torchnet as tnt
+import seaborn as sns
+import matplotlib.pyplot as plt
+from PIL import Image
 
 
 # Parser to help call
 parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
 parser.add_argument('--batch-size', type=int, default=128, metavar='N',
                     help='input batch size for training (default: 128)')
-parser.add_argument('--epochs', type=int, default=10, metavar='N',
+parser.add_argument('--epochs', type=int, default=5, metavar='N',
                     help='number of epochs to train (default: 10)')
 parser.add_argument('--lr', type=float, default=0.1, metavar='LR',
                     help='learning rate (default: 0.1)')
@@ -21,7 +24,7 @@ parser.add_argument('--dropout', type=float, default=0.25, metavar='P',
 parser.add_argument('--momentum', type=float, default=0.9, metavar='M',
                     help='heavy ball momentum in gradient descent (default: 0.9)')
 parser.add_argument('--data-dir', type=str, default='./data',metavar='DIR')
-parser.add_argument('--make-gif', type=bool, default=False,metavar='MKGIF')
+parser.add_argument('--make-gif', type=bool, default=True,metavar='MKGIF')
 args = parser.parse_args()
 args.cuda =  torch.cuda.is_available()
 
@@ -52,6 +55,15 @@ test_loader = torch.utils.data.DataLoader(
     batch_size=1000, shuffle=True, **kwargs)
 
 ##############
+def fig2img(fig):
+    """Convert a Matplotlib figure to a PIL Image and return it"""
+    import io
+    buf = io.BytesIO()
+    fig.savefig(buf)
+    buf.seek(0)
+    img = Image.open(buf)
+    return img
+
 #  uuild our models
 class View(nn.Module):
     def __init__(self,o):
@@ -96,8 +108,16 @@ optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum = args.momentum)
 scheduler = optim.lr_scheduler.StepLR(optimizer,5)
 
 
+if args.make_gif:
+    from sklearn.manifold import TSNE
+    tsne = TSNE(n_components=2)
 
-visualization_batch = next(iter(test_loader))
+    tsne_images = []
+    visualization_batch = next(iter(test_loader))
+    y = visualization_batch[1].detach()
+
+
+
 
 
 
@@ -126,7 +146,7 @@ def test():
             if args.cuda:
                 data, target = data.cuda(), target.cuda()
             output = model(data)
-                        
+
             loss = loss_function(output, target)
 
             top1.add(output.data, target.data)
@@ -140,4 +160,20 @@ weights = []
 if __name__=="__main__":
     for epoch in range(1, args.epochs + 1):
         train(epoch)
+        if args.make_gif:
+            model.eval()
+            vis_batch_data = visualization_batch[0]
+            output = model(vis_batch_data)
+            res = tsne.fit_transform(output.detach())
+
+            fig = plt.figure(figsize=(16,10))
+            sns.scatterplot(x =res[:,0],y = res[:,1],palette=sns.color_palette("hls", 10),hue=y,legend='full')
+            plt.title(str(epoch))
+            img = fig2img(fig)
+            tsne_images.append(img)
         test()
+
+    if args.make_gif:
+        img = tsne_images[0]
+        img.save(fp='tsne_{}'.format(args.epochs), format='GIF', append_images=tsne_images[1:],
+         save_all=True, duration=200, loop=0)
