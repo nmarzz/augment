@@ -170,4 +170,4 @@ if __name__=="__main__":
 
     if args.visualize:
         path = 'activations{}.pth'.format(args.epochs)
-        torch.save(activations,f)
+        torch.save(activations,path)
