@@ -24,7 +24,8 @@ parser.add_argument('--dropout', type=float, default=0.25, metavar='P',
 parser.add_argument('--momentum', type=float, default=0.9, metavar='M',
                     help='heavy ball momentum in gradient descent (default: 0.9)')
 parser.add_argument('--data-dir', type=str, default='./data',metavar='DIR')
-parser.add_argument('--make-gif', type=bool, default=False,metavar='MKGIF')
+parser.add_argument('--visualize', type=bool, default=False,metavar='VIS',
+                    help ='Visualize the data (Default: True)')
 args = parser.parse_args()
 args.cuda =  torch.cuda.is_available()
 
@@ -109,14 +110,11 @@ optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum = args.momentum)
 scheduler = optim.lr_scheduler.StepLR(optimizer,5)
 
 
-if args.make_gif:
-    from sklearn.manifold import TSNE
-    tsne = TSNE(n_components=2)
-
-    tsne_images = []
+if args.visualize:
     visualization_batch = next(iter(test_loader))
     vis_batch_data = visualization_batch[0]
     y = visualization_batch[1].detach()
+    activations = {'final': []}
 
 
 
@@ -162,21 +160,14 @@ weights = []
 if __name__=="__main__":
     for epoch in range(1, args.epochs + 1):
         train(epoch)
-        if args.make_gif:
+        if args.visualize:
             model.eval()
             if args.cuda:
                 vis_batch_data = vis_batch_data.cuda()
             output = model(vis_batch_data)
-            res = tsne.fit_transform(output.cpu().detach())
-
-            fig = plt.figure(figsize=(16,10))
-            sns.scatterplot(x =res[:,0],y = res[:,1],palette=sns.color_palette("hls", 10),hue=y,legend='full')
-            plt.title(str(epoch))
-            img = fig2img(fig)
-            tsne_images.append(img)
+            activations['final'].append(output.cpu())
         test()
 
-    if args.make_gif:
-        img = tsne_images[0]
-        img.save(fp='tsne_{}.gif'.format(args.epochs), format='GIF', append_images=tsne_images[1:],
-         save_all=True, duration=1000, loop=0)
+    if args.visualize:
+        path = 'activations{}.pth'.format(args.epochs)
+        torch.save(activations,f)
