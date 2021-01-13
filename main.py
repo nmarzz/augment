@@ -121,7 +121,7 @@ if args.cuda:
     loss_function.cuda()
 
 optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum = args.momentum)
-scheduler = optim.lr_scheduler.StepLR(optimizer,5)
+scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,'min',patience=3)
 
 
 if args.visualize:
