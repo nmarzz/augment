@@ -26,11 +26,10 @@ parser.add_argument('--momentum', type=float, default=0.9, metavar='M',
 parser.add_argument('--data-dir', type=str, default='./data',metavar='DIR')
 parser.add_argument('--dataset', type=str, default='FashionMNIST',metavar='DATA')
 parser.add_argument('--visualize', type=bool, default=False,metavar='VIS',
-                    help ='Visualize the data (Default: True)')
+                    help ='Visualize the data (Default: False)')
 parser.add_argument('--augment', type=bool, default=False,metavar='AUG')
 args = parser.parse_args()
 args.cuda =  torch.cuda.is_available()
-
 
 
 
@@ -42,14 +41,14 @@ print('\n')
 
 if args.augment:
 
-    transforms = transforms.Compose([
+    img_transforms = transforms.Compose([
+        transforms.RandomRotation(40),
+        transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
         transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,)),
-        transforms.RandomRotation(15),
-        transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1)
+        transforms.Normalize((0.1307,), (0.3081,))
     ])
 else:
-    transforms = transforms.Compose([
+    img_transforms = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize((0.1307,), (0.3081,))
         ])
@@ -65,20 +64,20 @@ device = 'cuda' if args.cuda else 'cpu'
 if args.dataset == 'MNIST':
     train_loader = torch.utils.data.DataLoader(
         datasets.MNIST(args.data_dir, train=True,download = True,
-                       transform=transforms),
+                       transform=img_transforms),
         batch_size=args.batch_size, shuffle=True, **kwargs)
     # Import test data
     test_loader = torch.utils.data.DataLoader(
-        datasets.MNIST(args.data_dir, train=False, transform=transforms),
+        datasets.MNIST(args.data_dir, train=False, transform=img_transforms),
         batch_size=1000, shuffle=True, **kwargs)
 elif args.dataset == 'FashionMNIST':
     train_loader = torch.utils.data.DataLoader(
         datasets.FashionMNIST(args.data_dir, train=True,download = True,
-                       transform= transforms),
+                       transform= img_transforms),
         batch_size=args.batch_size, shuffle=True, **kwargs)
     # Import test data
     test_loader = torch.utils.data.DataLoader(
-        datasets.FashionMNIST(args.data_dir, train=False, transform= transforms),
+        datasets.FashionMNIST(args.data_dir, train=False, transform= img_transforms),
         batch_size=1000, shuffle=True, **kwargs)
 
 
@@ -131,6 +130,8 @@ scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,'min',patience=
 if args.visualize:
     visualization_batch = next(iter(test_loader))
     vis_batch_data = visualization_batch[0]
+    # toPil = transforms.Compose([transforms.ToPILImage(),transforms.Resize((128,128))])
+    # toPil(vis_batch_data[0,:,:,:]).show()
     y = visualization_batch[1].detach().cpu()
     activations = {'final': [], 'y': y}
 
