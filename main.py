@@ -45,7 +45,7 @@ if args.augment:
     transforms = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize((0.1307,), (0.3081,)),
-        transforms.RandomRotation(15, resample=False, expand=False, center=None, fill=None),
+        transforms.RandomRotation(15, resample=False, expand=False, center=None),
         transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1)
     ])
 else:
