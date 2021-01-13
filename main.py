@@ -57,14 +57,6 @@ test_loader = torch.utils.data.DataLoader(
     batch_size=1000, shuffle=True, **kwargs)
 
 ##############
-def fig2img(fig):
-    """Convert a Matplotlib figure to a PIL Image and return it"""
-    import io
-    buf = io.BytesIO()
-    fig.savefig(buf)
-    buf.seek(0)
-    img = Image.open(buf)
-    return img
 
 #  uuild our models
 class View(nn.Module):
@@ -113,8 +105,8 @@ scheduler = optim.lr_scheduler.StepLR(optimizer,5)
 if args.visualize:
     visualization_batch = next(iter(test_loader))
     vis_batch_data = visualization_batch[0]
-    y = visualization_batch[1].detach()
-    activations = {'final': []}
+    y = visualization_batch[1].detach().cpu()
+    activations = {'final': [], 'y': y}
 
 
 
@@ -165,7 +157,7 @@ if __name__=="__main__":
             if args.cuda:
                 vis_batch_data = vis_batch_data.cuda()
             output = model(vis_batch_data)
-            activations['final'].append(output.cpu())
+            activations['final'].append(output.detach().cpu())
         test()
 
     if args.visualize:
