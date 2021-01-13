@@ -27,6 +27,7 @@ parser.add_argument('--data-dir', type=str, default='./data',metavar='DIR')
 parser.add_argument('--dataset', type=str, default='FashionMNIST',metavar='DATA')
 parser.add_argument('--visualize', type=bool, default=False,metavar='VIS',
                     help ='Visualize the data (Default: True)')
+parser.add_argument('--augment', type=bool, default=False,metavar='AUG')
 args = parser.parse_args()
 args.cuda =  torch.cuda.is_available()
 
@@ -39,6 +40,21 @@ for p in vars(args).items():
     print('  ',p[0]+': ',p[1])
 print('\n')
 
+if args.augment:
+
+    transforms = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.1307,), (0.3081,)),
+        transforms.RandomRotation(15, resample=False, expand=False, center=None, fill=None),
+        transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1)
+    ])
+else:
+    transforms = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.1307,), (0.3081,))
+        ])
+
+
 
 ###################
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
@@ -49,32 +65,20 @@ device = 'cuda' if args.cuda else 'cpu'
 if args.dataset == 'MNIST':
     train_loader = torch.utils.data.DataLoader(
         datasets.MNIST(args.data_dir, train=True,download = True,
-                       transform=transforms.Compose([
-                           transforms.ToTensor(),
-                           transforms.Normalize((0.1307,), (0.3081,))
-                       ])),
+                       transform=transforms),
         batch_size=args.batch_size, shuffle=True, **kwargs)
     # Import test data
     test_loader = torch.utils.data.DataLoader(
-        datasets.MNIST(args.data_dir, train=False, transform=transforms.Compose([
-                           transforms.ToTensor(),
-                           transforms.Normalize((0.1307,), (0.3081,))
-                       ])),
+        datasets.MNIST(args.data_dir, train=False, transform=transforms),
         batch_size=1000, shuffle=True, **kwargs)
 elif args.dataset == 'FashionMNIST':
     train_loader = torch.utils.data.DataLoader(
         datasets.FashionMNIST(args.data_dir, train=True,download = True,
-                       transform=transforms.Compose([
-                           transforms.ToTensor(),
-                           transforms.Normalize((0.1307,), (0.3081,))
-                       ])),
+                       transform= transforms),
         batch_size=args.batch_size, shuffle=True, **kwargs)
     # Import test data
     test_loader = torch.utils.data.DataLoader(
-        datasets.FashionMNIST(args.data_dir, train=False, transform=transforms.Compose([
-                           transforms.ToTensor(),
-                           transforms.Normalize((0.1307,), (0.3081,))
-                       ])),
+        datasets.FashionMNIST(args.data_dir, train=False, transform= transforms),
         batch_size=1000, shuffle=True, **kwargs)
 
 
@@ -183,5 +187,5 @@ if __name__=="__main__":
         test()
 
     if args.visualize:
-        path = 'activations{}.pth'.format(args.epochs)
+        path = 'activations{}_{}{}.pth'.format(args.dataset,args.epochs, 'augmented' if args.augment else '')
         torch.save(activations,path)
