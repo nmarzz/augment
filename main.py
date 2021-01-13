@@ -41,18 +41,22 @@ print('\n')
 
 if args.augment:
 
-    img_transforms = transforms.Compose([
-        transforms.RandomRotation(40),
+    train_transforms = transforms.Compose([
+        transforms.RandomRotation(20),
         transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
         transforms.ToTensor(),
         transforms.Normalize((0.1307,), (0.3081,))
     ])
 else:
-    img_transforms = transforms.Compose([
+    train_transforms = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize((0.1307,), (0.3081,))
         ])
 
+test_transforms = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize((0.1307,), (0.3081,))
+    ])
 
 
 ###################
@@ -64,20 +68,20 @@ device = 'cuda' if args.cuda else 'cpu'
 if args.dataset == 'MNIST':
     train_loader = torch.utils.data.DataLoader(
         datasets.MNIST(args.data_dir, train=True,download = True,
-                       transform=img_transforms),
+                       transform=train_transforms),
         batch_size=args.batch_size, shuffle=True, **kwargs)
     # Import test data
     test_loader = torch.utils.data.DataLoader(
-        datasets.MNIST(args.data_dir, train=False, transform=img_transforms),
+        datasets.MNIST(args.data_dir, train=False, transform=test_transforms),
         batch_size=1000, shuffle=True, **kwargs)
 elif args.dataset == 'FashionMNIST':
     train_loader = torch.utils.data.DataLoader(
         datasets.FashionMNIST(args.data_dir, train=True,download = True,
-                       transform= img_transforms),
+                       transform= train_transforms),
         batch_size=args.batch_size, shuffle=True, **kwargs)
     # Import test data
     test_loader = torch.utils.data.DataLoader(
-        datasets.FashionMNIST(args.data_dir, train=False, transform= img_transforms),
+        datasets.FashionMNIST(args.data_dir, train=False, transform= test_transforms),
         batch_size=1000, shuffle=True, **kwargs)
 
 
@@ -124,7 +128,7 @@ if args.cuda:
     loss_function.cuda()
 
 optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum = args.momentum)
-scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,'min',patience=3,threshold=1e-2,factor = 0.6)
+scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,'min',patience=5,threshold=1e-3,factor = 0.6)
 
 
 if args.visualize:
