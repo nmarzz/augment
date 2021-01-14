@@ -176,7 +176,7 @@ def train(epoch):
         if args.track and batch_idx % 100 == 0 and batch_idx>0:
             writer.add_scalar('training_loss',loss.data,epoch * len(train_loader) + batch_idx)
 
-        if batch_ix % 100 == 0 and batch_ix>0:
+        if batch_idx % 100 == 0 and batch_idx>0:
             print('[Epoch %2d, batch %3d] training loss: %.4f' %
                 (epoch, batch_idx, loss.data))
 
