@@ -192,8 +192,10 @@ if __name__=="__main__":
             output = model(vis_batch_data)
             activations['final'].append(output.detach().cpu())
         test()
-        print(test_loss)
+
 
     if args.visualize:
         path = 'activations{}_{}{}.pth'.format(args.dataset,args.epochs, 'augmented' if args.augment else '')
+        activations['loss_meter'] = test_loss
+        activations['top1'] = top1
         torch.save(activations,path)
