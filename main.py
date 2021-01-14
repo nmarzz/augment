@@ -198,7 +198,7 @@ def test():
         %(epoch, test_loss.value()[0], top1.value()[0]))
 
     if args.track:
-        writer.add_scalar('test_loss',test_loss.value()[0],epoch * len(train_loader) + batch_idx)
+        writer.add_scalar('test_loss',test_loss.value()[0],epoch)
         writer.add_scalar('test_acc', top1.value()[0],epoch)
 
 
