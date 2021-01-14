@@ -164,7 +164,7 @@ if args.track:
 ### Training loss_function
 def train(epoch):
     model.train()
-    for batch_ix, (data, target) in enumerate(train_loader):
+    for batch_idx, (data, target) in enumerate(train_loader):
         if args.cuda:
             data, target = data.cuda(), target.cuda()
         optimizer.zero_grad()
@@ -178,7 +178,7 @@ def train(epoch):
 
         if batch_ix % 100 == 0 and batch_ix>0:
             print('[Epoch %2d, batch %3d] training loss: %.4f' %
-                (epoch, batch_ix, loss.data))
+                (epoch, batch_idx, loss.data))
 
 # A test function
 def test():
@@ -199,7 +199,7 @@ def test():
 
     if args.track:
         writer.add_scalar('test_loss',test_loss.value()[0],epoch * len(train_loader) + batch_idx)
-        writer.add_scalar('test_acc', top1.value()[0],epoch * len(train_loader) + batch_idx)
+        writer.add_scalar('test_acc', top1.value()[0],epoch)
 
 
 
