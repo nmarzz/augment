@@ -173,7 +173,7 @@ def train(epoch):
         loss.backward()
         optimizer.step()
 
-        if args.track and batch_ix % 100 == 0 and batch_ix>0:
+        if args.track and batch_idx % 100 == 0 and batch_idx>0:
             writer.add_scalar('training_loss',loss.data,epoch * len(train_loader) + batch_idx)
 
         if batch_ix % 100 == 0 and batch_ix>0:
