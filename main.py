@@ -162,8 +162,6 @@ def train(epoch):
 # A test function
 def test():
     model.eval()
-    test_loss = tnt.meter.AverageValueMeter()
-    top1 = tnt.meter.ClassErrorMeter(accuracy = True)
     with torch.no_grad():
         for data, target in test_loader:
             if args.cuda:
@@ -178,8 +176,12 @@ def test():
     print('[Epoch %2d] Average test loss: %.3f, accuracy: %.2f%%\n'
         %(epoch, test_loss.value()[0], top1.value()[0]))
 
+
+
 # Actually run
 weights = []
+test_loss = tnt.meter.AverageValueMeter()
+top1 = tnt.meter.ClassErrorMeter(accuracy = True)
 if __name__=="__main__":
     for epoch in range(1, args.epochs + 1):
         train(epoch)
@@ -190,6 +192,7 @@ if __name__=="__main__":
             output = model(vis_batch_data)
             activations['final'].append(output.detach().cpu())
         test()
+        print(test_loss)
 
     if args.visualize:
         path = 'activations{}_{}{}.pth'.format(args.dataset,args.epochs, 'augmented' if args.augment else '')
